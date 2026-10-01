@@ -1,0 +1,47 @@
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+group = providers.gradleProperty('mod_group_id').get()
+version = providers.gradleProperty('mod_version').get()
+base { archivesName = providers.gradleProperty('mod_id').get() }
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    withSourcesJar()
+}
+repositories { mavenCentral() }
+neoForge {
+    version = providers.gradleProperty('neo_version').get()
+    parchment {
+        mappingsVersion = '2024.11.17'
+        minecraftVersion = providers.gradleProperty('minecraft_version').get()
+    }
+    runs {
+        client { client() }
+        server { server() }
+    }
+    mods {
+        zaremate_lib { sourceSet(sourceSets.main) }
+    }
+}
+dependencies {
+    implementation('net.neoforged:neoforge:' + providers.gradleProperty('neo_version').get())
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+publishing {
+    publications {
+        mavenJava(MavenPublication) { from components.java }
+    }
+}
+jar {
+    manifest {
+        attributes(
+            'Specification-Title': providers.gradleProperty('mod_name').get(),
+            'Specification-Vendor': 'ZareMate',
+            'Specification-Version': providers.gradleProperty('mod_version').get(),
+            'Implementation-Title': providers.gradleProperty('mod_name').get(),
+            'Implementation-Version': providers.gradleProperty('mod_version').get()
+        )
+    }
+}
